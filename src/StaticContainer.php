@@ -52,7 +52,7 @@ class StaticContainer
      *
      * @return \Psr\Container\ContainerInterface Returns the container instance.
      */
-    public static function getInstance(): ContainerInterface
+    public static function getInstance(): ?ContainerInterface
     {
         return self::$container;
     }
