@@ -30,6 +30,6 @@ namespace Omatamix\Container\Exception;
 
 use Throwable;
 
-class ExceptionInterface implements Throwable
+interface ExceptionInterface extends Throwable
 {
 }
