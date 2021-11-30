@@ -57,7 +57,7 @@ final class Container implements ContainerInterface
      *
      * @return mixed Returns a container entry.
      */
-    public function get(string $id)
+    public function get(string $id): mixed
     {
         if (!$this->has($id)) {
             throw new Exception\NotFoundException(sprintf('No entry was found for `%s` identifier.', $id));
@@ -79,7 +79,7 @@ final class Container implements ContainerInterface
      *
      * @return bool Returns true if the ID exists and false if not.
      */
-    public function has(string $id)
+    public function has(string $id): bool
     {
         return isset($this->container[$id]);
     }
