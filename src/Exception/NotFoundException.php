@@ -30,9 +30,6 @@ namespace Omatamix\Container\Exception;
 
 use Psr\Container\NotFoundExceptionInterface;
 
-/**
- * A non-existing id.
- */ 
 class NotFoundException extends ExceptionInterface implements NotFoundExceptionInterface
 {
 }
