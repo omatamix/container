@@ -30,20 +30,17 @@ namespace Omatamix\Container;
 
 use Psr\Container\ContainerInterface;
 
-/**
- * Compatible psr-11 container.
- */
 final class Container implements ContainerInterface
 {
-    /** @var \Omatamix\ContainerBuilder $builder */
+    /** @var \Omatamix\ContainerBuilder $builder The container builder to wrap. */
     private $container;
 
     /**
      * Construct a new compatible psr-11 container.
      *
-     * @param \Omatamix\ContainerBuilder $builder
+     * @param \Omatamix\ContainerBuilder $builder The container builder to wrap.
      *
-     * @return void
+     * @return void Returns nothing.
      */
     public function __construct(ContainerBuilder $builder)
     {
@@ -58,7 +55,7 @@ final class Container implements ContainerInterface
      * @throws NotFoundExceptionInterface  No entry was found for **this** identifier.
      * @throws ContainerExceptionInterface Error while retrieving the entry.
      *
-     * @return mixed Entry.
+     * @return mixed Returns a container entry.
      */
     public function get(string $id)
     {
@@ -80,7 +77,7 @@ final class Container implements ContainerInterface
      *
      * @param string $id Identifier of the entry to look for.
      *
-     * @return bool
+     * @return bool Returns true if the ID exists and false if not.
      */
     public function has(string $id)
     {
