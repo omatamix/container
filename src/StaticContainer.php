@@ -30,9 +30,6 @@ namespace Omatamix\Container;
 
 use Psr\Container\ContainerInterface;
 
-/**
- * A static version of our app core.
- */
 class StaticContainer
 {
     /** @var \Psr\Container\ContainerInterface $container The core container. */
