@@ -32,7 +32,7 @@ if (!function_exists('omatamixContainer')) {
     function omatamixContainer(string $service): mixed
     {
         if (is_null(StaticContainer::getInstance())) {
-            throw new RuntimeException('Invalid container call.')
+            throw new RuntimeException('Invalid container call.');
         }
         return StaticContainer::getInstance()->get($service);
     }
