@@ -5,7 +5,7 @@ declare(strict_types=1);
  *
  * MIT License
  * 
- * Copyright (c) 2021 Nicholas English
+ * Copyright (c) 2022 Nicholas English
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,24 +31,23 @@ namespace Omatamix\Container;
 use ArrayAccess;
 use SplObjectStorage;
 
-/**
- * A builder to help build psr-11 containers.
- */
 class ContainerBuilder implements ArrayAccess
 {
-    /** @var array $values */
+    /** @var array $values A list of container values. */
     private $values = [];
 
-    /** @var array $frozen */
+    /** @var array $frozen A list of keys that are frozen. */
     private $frozen = [];
 
-    /** @var \SplObjectStorage A container for our builder values. */
+    /** @var \SplObjectStorage $storage A container for our builder values. */
     private $storage;
 
     /**
      * Construct a new container builder.
      *
-     * @return void
+     * @param array $values A list of container values to inject.
+     *
+     * @return void Returns nothing.
      */
     public function __construct(array $values = [])
     {
@@ -66,7 +65,7 @@ class ContainerBuilder implements ArrayAccess
      *
      * @param string $id The unique identifier for the parameter or object
      *
-     * @return bool
+     * @return bool Returns true if the ID exists and false if not.
      */
     public function offsetExists($id)
     {
@@ -78,7 +77,7 @@ class ContainerBuilder implements ArrayAccess
      *
      * @param string $id Identifier of the entry to look for.
      *
-     * @return mixed Entry.
+     * @return mixed Returns a container entry.
      */
     public function offsetGet($id)
     {
@@ -90,7 +89,7 @@ class ContainerBuilder implements ArrayAccess
      *
      * @param string $id Identifier of the entry we are putting.
      *
-     * @return void
+     * @return void Returns nothing.
      */
     public function offsetSet($id, $value)
     {
@@ -101,6 +100,8 @@ class ContainerBuilder implements ArrayAccess
      * Unsets a parameter or an object.
      *
      * @param string $id The unique identifier for the parameter or object
+     *
+     * @return void Returns nothing.
      */
     public function offsetUnset($id)
     {
@@ -117,7 +118,7 @@ class ContainerBuilder implements ArrayAccess
      *
      * @param string $id Identifier of the entry to look for.
      *
-     * @return mixed Entry.
+     * @return mixed Returns a container entry.
      */
     public function retrieve(string $id)
     {
@@ -139,7 +140,7 @@ class ContainerBuilder implements ArrayAccess
      *
      * @param string $id Identifier of the entry we are putting.
      *
-     * @return void
+     * @return void Returns nothing.
      */
     public function put(string $id, $value): void
     {
@@ -154,7 +155,7 @@ class ContainerBuilder implements ArrayAccess
      *
      * @param callable $service The callable service.
      *
-     * @return callable
+     * @return callable Returns the service provider.
      */
     public function attach(callable $service): callable
     {
