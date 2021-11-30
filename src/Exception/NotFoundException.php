@@ -28,8 +28,9 @@ declare(strict_types=1);
 
 namespace Omatamix\Container\Exception;
 
+use Exception;
 use Psr\Container\NotFoundExceptionInterface;
 
-class NotFoundException implements NotFoundExceptionInterface, ExceptionInterface
+class NotFoundException extends Exception implements NotFoundExceptionInterface, ExceptionInterface
 {
 }
