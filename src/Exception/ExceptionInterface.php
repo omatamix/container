@@ -28,8 +28,6 @@ declare(strict_types=1);
 
 namespace Omatamix\Container\Exception;
 
-use Throwable;
-
-interface ExceptionInterface extends Throwable
+interface ExceptionInterface
 {
 }
