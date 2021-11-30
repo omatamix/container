@@ -31,27 +31,30 @@ namespace Omatamix\Container;
 use ArrayAccess;
 use SplObjectStorage;
 
-class ContainerBuilder implements ArrayAccess
+class ContainerBuilder implements BuilderInterface, ArrayAccess
 {
+    /** @var array $raw A list of raw values. */
+    private $raw = [];
+
     /** @var array $values A list of container values. */
     private $values = [];
 
-    /** @var array $frozen A list of keys that are frozen. */
+    /** @var array $frozen A list of frozen container values. */
     private $frozen = [];
 
-    /** @var \SplObjectStorage $storage A container for our builder values. */
-    private $storage;
+    /** @var \SplObjectStorage $services A container for our builder values. */
+    private $services;
 
     /**
      * Construct a new container builder.
      *
-     * @param array $values A list of container values to inject.
+     * @param array $values A list of values to set.
      *
      * @return void Returns nothing.
      */
     public function __construct(array $values = [])
     {
-        $this->storage = new SplObjectStorage();
+        $this->services = new SplObjectStorage();
         foreach ($values as $key => $value) {
             if (!is_string($key)) {
                 throw new Exception\ContainerException('Error while setting values.');
@@ -65,23 +68,11 @@ class ContainerBuilder implements ArrayAccess
      *
      * @param string $id The unique identifier for the parameter or object
      *
-     * @return bool Returns true if the ID exists and false if not.
+     * @return bool Returns true if the id exists and false if not.
      */
     public function offsetExists($id)
     {
         return array_key_exists($id, $this->values);
-    }
-
-    /**
-     * Retrieve a identifier's value.
-     *
-     * @param string $id Identifier of the entry to look for.
-     *
-     * @return mixed Returns a container entry.
-     */
-    public function offsetGet($id)
-    {
-        return $this->retrieve($id);
     }
 
     /**
@@ -93,7 +84,43 @@ class ContainerBuilder implements ArrayAccess
      */
     public function offsetSet($id, $value)
     {
-        $this->put($id, $value);
+        if (!is_string($id)) {
+            throw new Exception\ContainerException('Error while setting value.');
+        } elseif (isset($this->frozen[$id])) {
+            throw new Exception\ContainerException(sprintf('This `%s` identifier is frozen.', $id));
+        } elseif (is_array($value) && !(!($value[0] instanceof \Closure) || !method_exists($value[0], '__invoke'))) {
+            $this->protected[$id] = $value[1];
+            $this->values[$id] = $value[0];
+        } else {
+            $this->values[$id] = $value;
+        }
+    }
+    
+    /**
+     * Retrieve a identifier's value.
+     *
+     * @param string $id Identifier of the entry to look for.
+     *
+     * @return mixed Returns a container entry.
+     */
+    public function offsetGet($id)
+    {
+        if (!isset($this->values[$id])) {
+            throw new Exception\NotFoundException(sprintf('No entry was found for `%s` identifier.', $id));
+        } elseif (isset($this->raw[$id])
+            || !($this->values[$id] instanceof \Closure)
+            || !method_exists($this->values[$id], '__invoke')
+            || $this->protected[$id]) {
+            return $this->values[$id];
+        } elseif (isset($this->services[$this->values[$id]])) {
+            return $this->values[$id]($this);
+        } else {
+            $raw = $this->values[$id];
+            $value = $this->values[$id] = $raw($this);
+            $this->raw[$id] = $raw;
+            $this->frozen[$id] = true;
+            return $value;
+        }
     }
 
     /**
@@ -106,60 +133,26 @@ class ContainerBuilder implements ArrayAccess
     public function offsetUnset($id)
     {
         if ($this->offsetExists($id)) {
-            if (!isset($this->protected[$id]) && is_callable($this->values[$id]) && $this->storage->contains($this->values[$id])) {
-                unset($this->storage[$this->values[$id]], $this->protected[$id]);
+            if (is_object($this->values[$id]) && isset($this->services[$this->values[$id]])) {
+                unset($this->services[$this->values[$id]], $this->protected[$id]);
             }
-            unset($this->values[$id], $this->frozen[$id]);
+            unset($this->values[$id], $this->frozen[$id], $this->raw[$id]);
         }
     }
 
     /**
-     * Retrieve a identifier's value.
+     * Add new service definition.
      *
-     * @param string $id Identifier of the entry to look for.
+     * @param callable|\Closure $callable A closure callable or invokable object.
      *
-     * @return mixed Returns a container entry.
+     * @return array Returns the callable in an array.
      */
-    public function retrieve(string $id)
+    public function service($callable, bool $protect = false)
     {
-        if ($this->offsetExists($id)) {
-            $this->frozen[$id] = true;
-            if (is_callable($this->values[$id])) {
-                if ($this->storage->contains($this->values[$id])) {
-                    return $this->values[$id]($this);
-                }
-            }
-            return $this->values[$id];
-        } else {
-            throw new Exception\ContainerException('Error while retrieving the entry.');
+        if (!($callable instanceof \Closure) || !method_exists($callable, '__invoke')) {
+            throw new Exception\ContainerException('Callable is not a Closure or invokable object.');
         }
-    }
-
-    /**
-     * Put a new value in our values array.
-     *
-     * @param string $id Identifier of the entry we are putting.
-     *
-     * @return void Returns nothing.
-     */
-    public function put(string $id, $value): void
-    {
-        if (isset($this->frozen[$id])) {
-            throw new Exception\ContainerException(sprintf('This `%s` identifier is frozen.', $id));
-        }
-        $this->values[$id] = $value;
-    }
-
-    /**
-     * Attach a new service to the container.
-     *
-     * @param callable $service The callable service.
-     *
-     * @return callable Returns the service provider.
-     */
-    public function attach(callable $service): callable
-    {
-        $this->storage->attach($service);
-        return $service;
+        $this->services->attach($callable);
+        return [$callable, $protect];
     }
 }
