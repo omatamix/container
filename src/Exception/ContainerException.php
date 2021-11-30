@@ -28,8 +28,9 @@ declare(strict_types=1);
 
 namespace Omatamix\Container\Exception;
 
+use Exception;
 use Psr\Container\ContainerExceptionInterface;
 
-class ContainerException implements ContainerExceptionInterface, ExceptionInterface
+class ContainerException extends Exception implements ContainerExceptionInterface, ExceptionInterface
 {
 }
