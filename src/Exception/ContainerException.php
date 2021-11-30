@@ -30,9 +30,6 @@ namespace Omatamix\Container\Exception;
 
 use Psr\Container\ContainerExceptionInterface;
 
-/**
- * Exceptions directly thrown by the container.
- */ 
 class ContainerException extends ExceptionInterface implements ContainerExceptionInterface
 {
 }
