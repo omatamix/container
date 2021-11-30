@@ -42,6 +42,9 @@ class ContainerBuilder implements BuilderInterface, ArrayAccess
     /** @var array $frozen A list of frozen container values. */
     private $frozen = [];
 
+    /** @var array $protected A list of protected values. */
+    private $protected = [];
+
     /** @var \SplObjectStorage $services A container for our builder values. */
     private $services;
 
