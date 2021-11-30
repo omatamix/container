@@ -30,6 +30,6 @@ namespace Omatamix\Container\Exception;
 
 use Psr\Container\NotFoundExceptionInterface;
 
-class NotFoundException extends ExceptionInterface implements NotFoundExceptionInterface
+class NotFoundException implements NotFoundExceptionInterface, ExceptionInterface
 {
 }
