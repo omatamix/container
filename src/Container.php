@@ -28,23 +28,27 @@ declare(strict_types=1);
 
 namespace Omatamix\Container;
 
+use ArrayAccess;
 use Psr\Container\ContainerInterface;
 
 final class Container implements ContainerInterface
 {
-    /** @var \Omatamix\ContainerBuilder $builder The container builder to wrap. */
-    private $container;
+    /** @var \Omatamix\BuilderInterface $builder The container builder. */
+    private $builder;
 
     /**
      * Construct a new compatible psr-11 container.
      *
-     * @param \Omatamix\ContainerBuilder $builder The container builder to wrap.
+     * @param \Omatamix\BuilderInterface $builder The container builder.
      *
      * @return void Returns nothing.
      */
-    public function __construct(ContainerBuilder $builder)
+    public function __construct(BuilderInterface $builder)
     {
-        $this->container = $builder;
+        if (!($builder instanceof ArrayAccess)) {
+            throw new Exception\ContainerException('This container builder does not implement `\ArrayAccess`.');
+        }
+        $this->builder = $builder;
     }
 
     /**
@@ -55,17 +59,11 @@ final class Container implements ContainerInterface
      * @throws NotFoundExceptionInterface  No entry was found for **this** identifier.
      * @throws ContainerExceptionInterface Error while retrieving the entry.
      *
-     * @return mixed Returns a container entry.
+     * @return mixed Returns the entry.
      */
-    public function get(string $id): mixed
+    public function get(string $id)
     {
-        if (!$this->has($id)) {
-            throw new Exception\NotFoundException(sprintf('No entry was found for `%s` identifier.', $id));
-        } elseif ($value = $this->retrieve($id)) {
-            return $value;
-        } else {
-            throw new Exception\ContainerException('Error while retrieving the entry.');
-        }
+        return $this->builder[$id];
     }
 
     /**
@@ -77,10 +75,10 @@ final class Container implements ContainerInterface
      *
      * @param string $id Identifier of the entry to look for.
      *
-     * @return bool Returns true if the ID exists and false if not.
+     * @return bool Returns true if the container contains the entry and false if not.
      */
     public function has(string $id): bool
     {
-        return isset($this->container[$id]);
+        return isset($this->builder[$id]);
     }
 }
